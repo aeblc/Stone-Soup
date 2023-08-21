@@ -260,3 +260,23 @@ class PrecisionMatrix(Matrix):
     # TODO: ensure positive definiteness on initiation?
 
     # TODO: overwrite/provide the inverse function to return a covariance matrix
+
+
+class SPDCovarianceMatrix(CovarianceMatrix):
+    """Symmetric Positive Definite (SPD) Covariance Matrix.
+
+    This class returns a view to a :class:`numpy.ndarray`, but ensures that
+    its initialised at a *NxN*, symmetric and positive definite matrix.
+    It's called similar to :func:`numpy.asarray`.
+    """
+
+    def __new__(cls, *args, **kwargs):
+        array = np.asarray(*args, **kwargs)
+        if not array.ndim == 2:
+            raise ValueError("Covariance should have ndim of 2: got {}"
+                             "".format(array.ndim))
+        if not np.all(np.linalg.eigvals(array) > 0):
+            raise ValueError("Covariance should be positive definite.")
+        if not np.array_equal(array, array.T):
+            raise ValueError("Covariance matrix should be symmetric.")
+        return array.view(cls)

@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
 
-from ..array import Matrix, StateVector, StateVectors, CovarianceMatrix, PrecisionMatrix
+from ..array import Matrix, StateVector, StateVectors, CovarianceMatrix, PrecisionMatrix, \
+    SPDCovarianceMatrix
 
 
 def test_statevector():
@@ -203,3 +204,12 @@ def test_array_ops():
     assert type(sv + array) == Mtype
     assert type(covar+2.) == Mtype
     assert type(covar*2.) == Mtype
+
+
+def test_psdcovariancematrix():
+    with pytest.raises(ValueError): # should reject non-positive definite matrix
+        SPDCovarianceMatrix(np.array([[0, 0], [0, 0]]))
+    with pytest.raises(ValueError): # should reject non-positive definite matrix
+        SPDCovarianceMatrix(np.array([[0, -1], [-1, 0]]))
+    with pytest.raises(ValueError): # should reject non-symmetric matrix
+        SPDCovarianceMatrix(np.array([[0, -1], [1, 0]]))
